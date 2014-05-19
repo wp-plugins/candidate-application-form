@@ -1,0 +1,461 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+@media screen and (min-height:650px) and (max-height:700px)
+{
+
+.form_id 
+{
+float:left;
+}
+	
+	
+.container_form 
+{
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+.h20 { height:5px; }
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+
+}
+
+
+@media screen and (min-height:550px) and (max-height:650px) 
+{
+
+.form_id 
+{
+
+float:left;
+}
+	
+	
+.container_form 
+{
+
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+
+.h20 { height:2px; }
+
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.wp_title 
+{
+margin: 4px 3px 15px 0;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+}
+
+
+@media screen and (min-height:400px) and (max-height:550px) 
+{
+
+.form_id 
+{
+	
+float:left;
+}
+	
+	
+.container_form 
+{
+
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+.h20 { height:2px; }
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+
+.wp_title 
+{
+font-size: 14px;
+margin: 4px 3px 15px 0;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+
+}
+
+@media screen and (min-height:200px) and (max-height:400px)
+{
+
+.form_id 
+{
+	
+float:left;
+}
+	
+	
+.container_form 
+{
+
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+
+.h20 { height:2px; }
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.h20 { height:2px;}
+
+
+.wp_title 
+{
+font-size: 17px;
+margin: 4px 3px 15px 0;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+}
+
+
+@media screen and (max-height:200px)
+{
+
+.form_id 
+{
+	
+float:left;
+}
+	
+	
+.container_form 
+{
+
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+.h20 { height:2px; }
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.h20 { height:2px;}
+
+
+.wp_title 
+{
+font-size: 14px;
+margin: 4px 3px 15px 0;
+font-weight:bold;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+
+}
+
+
+
+@media screen and (min-width:400px) and (max-width:500px)
+{
+
+.form_id 
+{
+	
+float:left;
+}
+	
+	
+.container_form 
+{
+
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.h20 { height:2px;}
+
+
+.wp_title 
+{
+font-size: 17px;
+margin: 4px 3px 15px 0;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+}
+
+
+@media screen and (min-width:350px) and (max-width:400px)
+{
+
+.form_id 
+{
+float:left;
+}
+	
+	
+.container_form 
+{
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.h20 { height:2px;}
+
+
+.wp_title 
+{
+font-size: 17px;
+margin: 4px 3px 15px 0;
+}
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+}
+
+
+
+@media screen and (min-width:300px) and (max-width:350px)
+{
+
+.form_id 
+{
+float:left;
+}
+	
+	
+.container_form 
+{
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.h20 { height:5px;}
+
+.wp_title {
+font-size: 17px;
+margin: 4px 3px 15px 0;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+}
+
+
+
+@media screen and (max-width:300px)
+{	
+
+.form_id 
+{	
+float:left;
+}
+
+.container_form 
+{
+float:left;	
+padding: 8px;
+}
+
+
+.inputclass 
+{
+padding: 3px;
+}
+
+
+.inputfile 
+{
+  padding: 3px;
+}
+
+
+		
+.wp_labeltxt 
+{
+font-size: 13px;
+}
+
+.h20 { height:5px;}
+
+.wp_title 
+{
+font-size: 15px;
+margin: 4px 3px 15px 0;
+font-weight: bold;
+}
+
+.uploader_class 
+{ 
+padding: 3px; 
+}
+
+}
+

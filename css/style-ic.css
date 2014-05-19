@@ -1,0 +1,208 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+.wp_title
+{ 
+font-size: 20px;
+color: #0B5D94;
+width: 100%;
+margin: 4px 3px 30px 0;
+} 
+
+
+.container_form 
+{
+width:95%;
+float:left;	
+margin: 0 0 0 12px;	
+border:1px solid #979797;
+border-radius:4px;
+padding: 8px;
+}
+
+
+
+.form_id 
+{
+width:100%;
+float:left;
+}
+
+
+.inputclass 
+{  
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;	
+  display: block;
+  border: 1px solid #D5D5D5;
+  padding: 6px;
+  border-radius:4px;
+  box-shadow: -1px 1px 6px 1px #DFE0E0;
+  font-size: 15px;
+  width: 97%;
+  border-radius:4px;	
+}
+
+
+.inputfile 
+{ 
+  display: block;
+  border: 1px solid #D5D5D5;
+  padding: 5px;
+  border-radius:4px;
+  box-shadow: -1px 1px 6px 1px #DFE0E0;
+  width: 97%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;	
+ }
+      
+
+.clear { clear:both;}
+.h10 { height:10px;}
+.h20 { height:10px;}
+
+.wp_labeltxt 
+{ 
+  font-size:15px;   
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+
+.wp_applybtn {
+  width: 97%;
+}
+
+.applybtn
+{
+width: 40%;
+height:35px;
+background-color:#1F7CB1;
+font-size: 18px;
+color:#ffffff;
+border:1px solid #999999;
+float:right;
+cursor:pointer;
+}
+
+
+.drag-handle{ /*Overwrite default drag handle bar background color with below*/
+background-color: #03277C;
+}
+
+
+#interVeil{ /*CSS for veil that covers entire page while modal window is visible*/
+position: absolute;
+background: black url(blackdot.gif);
+width: 10px;
+left: 0;
+top: 0;
+z-index: 5;
+visibility: hidden;
+filter:progid:DXImageTransform.Microsoft.alpha(opacity=80);
+opacity: 0.8;
+}
+
+
+/* style added for multiple_select */
+.multiple_select {
+padding: 3px 5px;
+text-decoration: none !important;
+border-radius: 2px;
+-webkit-border-radius: 2px;
+-moz-border-radius: 2px;
+-ms-border-radius: 2px;
+-o-border-radius: 2px;
+box-shadow:0 0 2px #000;
+color:#000000 !important;
+background: #eeeeee; /* Old browsers */
+background: -moz-linear-gradient(top, #eeeeee 0%, #cccccc 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, #eeeeee 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, #eeeeee 0%,#cccccc 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, #eeeeee 0%,#cccccc 100%); /* IE10+ */
+background: linear-gradient(to bottom, #eeeeee 0%,#cccccc 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
+}
+
+.uploader_class 
+{ 
+  float:left; 
+  width:92%;
+  border: 1px solid #E7E7E7;
+  padding: 5px;
+  border-radius:4px;
+  box-shadow: -1px 1px 6px 1px #DFE0E0;
+  font-size: 15px;
+}
+
+.wp_af_validation_error{
+  color: #f00;
+  display: block;
+  margin-top: 3px;
+
+}
+.af_clss .span_error_class{
+   margin-left: 5px;
+}   
+
+.wpaf_error_detected{
+   color: #f00;
+   margin-left: 5px;
+}
+
+
+.wpaf_dialog_setting .ui-widget-header{
+    background: none; 
+    color: #fff;
+    background: #7d7e7d; /* Old browsers */
+    background: -moz-linear-gradient(top, #7d7e7d 0%, #353535 52%, #0e0e0e 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7d7e7d), color-stop(52%,#353535), color-stop(100%,#0e0e0e)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #7d7e7d 0%,#353535 52%,#0e0e0e 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #7d7e7d 0%,#353535 52%,#0e0e0e 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #7d7e7d 0%,#353535 52%,#0e0e0e 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #7d7e7d 0%,#353535 52%,#0e0e0e 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7d7e7d', endColorstr='#0e0e0e',GradientType=0 ); /* IE6-9 */
+   } 
+.wpaf_dialog_setting .ui-dialog-buttonpane{
+    background: #0e0e0e !important; /* Old browsers */
+    background: -moz-linear-gradient(top, #0e0e0e 0%, #353535 52%, #7d7e7d 100%) !important; /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0e0e0e), color-stop(52%,#353535), color-stop(100%,#7d7e7d)) !important; /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #0e0e0e 0%,#353535 52%,#7d7e7d 100%) !important; /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #0e0e0e 0%,#353535 52%,#7d7e7d 100%) !important; /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #0e0e0e 0%,#353535 52%,#7d7e7d 100%) !important; /* IE10+ */
+    background: linear-gradient(to bottom, #0e0e0e 0%,#353535 52%,#7d7e7d 100%) !important; /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0e0e0e', endColorstr='#7d7e7d',GradientType=0 ) !important; /* IE6-9 */
+   }
+.wpaf_dialog_setting  .ui-state-default{
+     background-color: #FFF;
+     color: #000;
+  
+     }
+.wpaf_dialog_setting .ui-state-default, .wpaf_dialog_setting  .ui-widget-content .ui-state-default, .wpaf_dialog_setting  .ui-widget-header .ui-state-default {
+    background: #fff;
+    border: 1px solid #fff;
+    color: #000;
+    font-weight: normal;
+}
+
+.wpaf_dialog_setting .ui-state-default a, .wpaf_dialog_setting  .ui-state-default a:link, .wpaf_dialog_setting  .ui-state-default a:visited {
+    color: #000;
+    text-decoration: none;
+}
+.wpaf_dialog_setting  .ui-state-hover, .wpaf_dialog_setting  .ui-widget-content .ui-state-hover, .wpaf_dialog_setting  .ui-widget-header .ui-state-hover, .wpaf_dialog_setting  .ui-state-focus, .wpaf_dialog_setting  .ui-widget-content .ui-state-focus, .wpaf_dialog_setting  .ui-widget-header .ui-state-focus {
+    background: #eee;
+    border: 1px solid #eee;
+    color: #000;
+    font-weight: normal;
+}
+.wpaf_dialog_setting  .ui-state-hover a, .wpaf_dialog_setting  .ui-state-hover a:hover,.wpaf_dialog_setting  .ui-state-hover a:link, .ui-state-hover a:visited,.wpaf_dialog_setting  .ui-state-focus a,.wpaf_dialog_setting  .ui-state-focus a:hover, .wpaf_dialog_setting .ui-state-focus a:link,.wpaf_dialog_setting  .ui-state-focus a:visited {
+    color: #000;
+    text-decoration: none;
+}
+
+
