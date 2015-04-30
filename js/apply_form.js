@@ -5,6 +5,7 @@
 
 jQuery(document).ready( function() {
   
+	   
    var form_count = 1;
    jQuery(".af_clss").each(function() { 
        var dialog_elm = "dialog_"+form_count;      /*dialog id*/
@@ -17,7 +18,7 @@ jQuery(document).ready( function() {
        form_count++;
    });
    jQuery(".apply_form").click( function() {       
-   
+   //alert('fast and fury');
      /*Check the validation code*/  
      var this_elm = jQuery(this);  
      var apply_btn_id = jQuery(this_elm).attr('id');
@@ -31,7 +32,7 @@ jQuery(document).ready( function() {
      var form_data1 = jQuery(form_id).serialize();      
      /*   jQuery(form_dialog).dialog("open");   */  
          
-
+//alert(form_data1);
     jQuery.ajax({
        type : "post",
        dataType : "json",
@@ -255,6 +256,8 @@ jQuery(document).ready( function() {
        if(event.cancelable){  /*if the X button is clicked */
           jQuery('.dialog p').remove();  
           jQuery(".af_clss")[0].reset();
+		  jQuery(".makemeempty").val("");  //CRINCH - april 30 
+		  jQuery("span.remove_me").html("");  //CRINCH - april 30 
           jQuery(".span_error_class").each(function() {  
                      var elm_id = jQuery(this).attr("id"); 
                      jQuery("#"+elm_id).empty();  
@@ -272,3 +275,11 @@ jQuery(document).ready( function() {
     if (i == 0) return bytes + ' ' + sizes[i];
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 };
+
+/*CRINCH 26March2015*/
+function show_dialog_pdf_input_field()
+{
+	jQuery('.wpaf_dialog_table tbody tr#pdf_upload_dialog_row').show();
+}
+/*END CRINCH 26March2015*/
+

@@ -11,7 +11,8 @@
     $to = $_POST['destination_email']; /* email is sent to */
     $from = get_option('admin_email'); /* gets admin email  of the blog is sent from */
     
-  
+           
+    
     $first_name = '';
     $last_name = '';
     $title = '';
@@ -56,7 +57,7 @@
    $parameters = $_POST;
    $set_parameter_value = 0; 
     
-    
+	
     /*build headers string*/
     $html_msg = "";       /*Message parameter used when debugging is turned off*/
     $html_debug_msg = "";  /*Message parameter used when debugging is turned on*/ 
@@ -70,7 +71,8 @@
     }
      
     /*build parameters string */
-    $ignore_list = array("action","post_id","nonce","headers","apply_success","apply_failure","destination_email");
+    $ignore_list = array("action","post_id","nonce","headers","apply_success","apply_failure","destination_email","customPdfFilePathh","customPdfFilePath"); // CRINCH - LAST PARAMETER ADDED
+    
     foreach($parameters as $key => $value){
        if($key == "file_upload_path"){
          /*trace the file_upload_path array */ 
@@ -78,13 +80,49 @@
          $upload_path_arr = array();
          $upload_path_arr = $parameters[$key];
          foreach($upload_path_arr as $upload_path_key => $upload_path_value){
-             $html_debug_msg .= "<tr><td width='200' align='right' style='border: 1px dotted black; padding-right:3px;'>$upload_path_key:</td><td style='border: 1px dotted black;'>$upload_path_value</td></tr>"; 
+             $html_debug_msg .= "<tr><td width='200' align='right' style='border: 1px dotted black; padding-right:3px;'>$upload_path_key:</td><td style='border: 1px dotted black;'>$upload_path_value</td></tr>";
+             //$html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>$upload_path_key:</td><td style='border: 1px dotted black;'>$upload_path_value</td></tr>";
+             $cv_custom_file_name = explode('/',$upload_path_value);
+             $html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>".$upload_path_key."</td><td style='border: 1px dotted black;'>".$cv_custom_file_name[1]."</td></tr>";
             if(!empty($upload_path_value)){  
               $attachments[] = UPLOADS_CANDIDATE_APPLICATION_FORM."/".$upload_path_value;
+              //print '=='.$upload_path_value;
               $response['debug'][] = "Attached File: ".$upload_path_value;
                      
             }
          }
+       } else if($key == "userPdfUploadFileNewName"){    //CRINCH - CUSTOM BLOCK OF CODE
+       	//if(file_exists(UPLOADS_CANDIDATE_APPLICATION_FORM."/".$upload_path_arr_custom[$iii].'.pdf')){
+         $html_debug_msg .= "<tr><td colspan='2' style='border: 1px solid black;'>File Uploaded paths - CRINCH</td></tr>";
+         $upload_path_arr_custom = array();
+         $upload_path_arr_custom = $parameters[$key];
+       	 for($iii=0; $iii<count($upload_path_arr_custom); $iii++){
+       	 	//$custom_explode = explode('/',$upload_path_arr_custom[$iii]);
+       	 	$html_debug_msg .= "<tr><td width='200' align='right' style='border: 1px dotted black; padding-right:3px;'>$key:iii</td><td style='border: 1px dotted black;'>".$upload_path_arr_custom[$iii]."</td></tr>";
+       	 	//$html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>$key:</td><td style='border: 1px dotted black;'>".$custom_explode[1].".pdf"."</td></tr>";       	 	
+       	 	if(!empty($upload_path_arr_custom[$iii])){
+       	 		$attachments[] = UPLOADS_CANDIDATE_APPLICATION_FORM."/candidate_application_form/".$upload_path_arr_custom[$iii];
+       	 		$response['debug'][] = "Attached File: ".$upload_path_arr_custom[$iii];       	 		 
+       	 	}       	 	
+       	 }
+       }/*else if(strpos($value,'FILEUPLOADED') !== false){       	
+       		$html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>".str_replace("_"," ",$key)."</td><td style='border: 1px dotted black;'>".str_replace("FILEUPLOADED|","",$value)."</td></tr>";
+       }*/ /*else if($key == "customPdfFilePath"){
+       	$upload_path_arr_custom_orig = $parameters[$key];
+       	for($iii=0; $iii<count($upload_path_arr_custom_orig); $iii++){
+       		$custom_explode_orig = explode('/',$upload_path_arr_custom_orig[$iii]);
+       		$file_number = $iii+1;
+       		if(!empty(end($custom_explode_orig))){
+       			$html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>Attach File $file_number:</td><td style='border: 1px dotted black;'>".end($custom_explode_orig)."</td></tr>";       			
+       		}
+       	}       	
+       }*/else if(strpos($key,'inputtypecheckbox') !== false){     //CRINCH - CUSTOM BLOCK OF CODE
+       	$html_key_title = str_replace("inputtypecheckbox","",$key);
+       	$html_debug_msg .= "<tr><td colspan='2' style='border: 1px solid black;'>$html_key_title</td></tr>";
+       	$checkbox_array_value = $parameters[$key];
+       	$checkbox_string = join(',', $checkbox_array_value);
+       	$html_debug_msg .= "<tr><td colspan='2' style='border: 1px solid black;'>$checkbox_string</td></tr>";
+       	$html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>$html_key_title:</td><td style='border: 1px dotted black;'>$checkbox_string</td></tr>";
        }
        else  if($key == "filename_original"){
          
@@ -93,8 +131,7 @@
          $upload_file_name_arr = array();
          $upload_file_name_arr = $parameters[$key];
          foreach($upload_file_name_arr as $original_file_key => $original_file_value){
-            $html_debug_msg .= "<tr><td width='200' align='right' style='border: 1px dotted black; padding-right:3px;'>$original_file_key:</td><td style='border: 1px dotted black;'>$original_file_value</td></tr>"; 
-            
+            $html_debug_msg .= "<tr><td width='200' align='right' style='border: 1px dotted black; padding-right:3px;'>$original_file_key:</td><td style='border: 1px dotted black;'>$original_file_value</td></tr>";             
          }
        }
        else  if($key == "filename_type"){
@@ -149,8 +186,17 @@
             $html_parameter_debug_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>Job Title:</td><td style='border: 1px dotted black;'>$title</td></tr>"; 
              
           }
+          //if(!in_array($key,$ignore_list)){
+          //if(!in_array($key,$ignore_list) && $value!='FILEUPLOADED'){
           if(!in_array($key,$ignore_list)){
-             $html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>$key:</td><td style='border: 1px dotted black;'>$value</td></tr>"; 
+          	//CRINCH
+          	if(strpos($value,'FILEUPLOADED') !== false){
+          		$custom_explode_orig_editpdffield = explode('/',$value);
+          		$custom_value = end($custom_explode_orig_editpdffield);
+          		$html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>".str_replace("_"," ",$key)."</td><td style='border: 1px dotted black;'>".$custom_value."</td></tr>";
+          	}else{
+             $html_msg .= "<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>$key:</td><td style='border: 1px dotted black;'>$value</td></tr>";
+          	} 
           } 
           $html_parameter_debug_msg .="<tr><td width='150' align='right' style='border: 1px dotted black; padding-right:3px;'>$key:</td><td style='border: 1px dotted black;'>$value</td></tr>";   
        }
@@ -160,6 +206,8 @@
     $html_debug_msg .=$html_parameter_debug_msg; 
     $html_debug_msg .="</table>";
     
+    
+
     $subject = "Candidate Application : $first_name $last_name has applied for the vacancy of $title"; 
 //    	$subject = replace_mail_tags( $subject);
 //     $subject = strip_newline( $subject );
@@ -188,6 +236,7 @@
                             
   
    $mail_sent = wp_mail($to, $subject, $email_message, $headers, $attachments );
+   
    // Reset content-type to avoid conflicts
    remove_filter( 'wp_mail_content_type', 'set_html_content_type' ); 
 
@@ -206,6 +255,11 @@
          /*Code to unlink the files once the mail is sent */
          $file_count = 0;
          $file_delete_count = 0;
+         
+         //CRINCH
+         $file_count_custom = 0;
+         $file_delete_count_custom = 0;
+          
          foreach($parameters as $key => $value){
           // $response['debug'][] = "In unlink for loop ".$key;
              if($key == "file_upload_path"){
@@ -231,6 +285,28 @@
                         } 
                   }
              
+             } 
+             if($key == "userPdfUploadFileNewName"){    //CRINCH - CUSTOM BLOCK OF CODE
+             	$upload_path_arr_custom = array();
+             	$upload_path_arr_custom = $parameters[$key];
+             	for($jjj=0; $jjj<count($upload_path_arr_custom); $jjj++){
+             		//    $response['debug'][] = "In upload_path_value ";
+					$custom_file_path_string = 'candidate_application_form/'.$upload_path_arr_custom[$jjj];
+             		//if(!empty('candidate_application_form/'.$upload_path_arr_custom[$jjj])){
+					if(!empty($custom_file_path_string)){
+             			if(file_exists(UPLOADS_CANDIDATE_APPLICATION_FORM."/candidate_application_form/".$upload_path_arr_custom[$jjj])){
+             				 
+             				$unlink_value_custom = 0;
+             				$unlink_value_custom =  @unlink(UPLOADS_CANDIDATE_APPLICATION_FORM."/candidate_application_form/".$upload_path_arr_custom[$jjj]);
+             				if($unlink_value_custom)
+             				{
+             					$response['debug'][] = "Deleted File: ".$upload_path_arr_custom[$jjj];
+             					$file_delete_count_custom++;
+             				}
+             				$file_count_custom++; 
+             			}
+             		}
+             	}             	
              }
          
          }

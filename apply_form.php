@@ -17,6 +17,8 @@ class Candidate_Application_Form{
 	function admin_menu() {
      add_options_page('Candidate Apply Form', 'Candidate Apply Form', 'manage_options', 'candidate-apply-form', array($this, 'admin_candidate_apply_form'));
 	}    
+
+		
    
    
  /* Name: apply_form_frontend_method
@@ -82,13 +84,16 @@ class Candidate_Application_Form{
         wp_enqueue_style( 'af-style' );
         wp_enqueue_style( 'af-custom-scrollbar' );
         wp_enqueue_style( 'af-bootstrap' );
+
         
 
-        wp_register_script('af-scrollbar', plugins_url('js/jquery.mCustomScrollbar.concat.min.js', __FILE__ ), array('jquery') ); 
+        
+        wp_register_script('af-scrollbar', plugins_url('js/jquery.mCustomScrollbar.concat.min.js', __FILE__ ), array('jquery') );
         wp_register_script( "af-functions", plugins_url('js/functions.js', __FILE__ ), array('jquery') );
         wp_register_script( "admin_apply_form", plugins_url('js/admin_apply_form.js', __FILE__ ), array('af-functions') ); 
     
-           
+        wp_localize_script( 'admin_apply_form', 'myCustomAjax', array( 'ajaxcustomurl' => admin_url('admin-ajax.php'), 'script_in_use_custom' => 'uploadfile.php'));
+        
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui-core'); 
         wp_enqueue_script('jquery-ui-draggable');  
@@ -99,14 +104,19 @@ class Candidate_Application_Form{
        /*end of new scripts*/ 
     
       /*localize field types*/
-       wp_localize_script( 'admin_apply_form', 'afAjax', array( 'FIELD_TYPE1' => FIELD_TYPE1,'FIELD_TYPE2' => FIELD_TYPE2,'FIELD_TYPE3' => FIELD_TYPE3,'FIELD_TYPE4' => FIELD_TYPE4,'FIELD_TYPE6' => FIELD_TYPE6,'FIELD_TYPE7' => FIELD_TYPE7));    
+       //wp_localize_script( 'admin_apply_form', 'afAjax', array( 'FIELD_TYPE1' => FIELD_TYPE1,'FIELD_TYPE2' => FIELD_TYPE2,'FIELD_TYPE3' => FIELD_TYPE3,'FIELD_TYPE4' => FIELD_TYPE4,'FIELD_TYPE6' => FIELD_TYPE6,'FIELD_TYPE7' => FIELD_TYPE7));    
+       //CRINCH
+        wp_localize_script( 'admin_apply_form', 'afAjax', array( 'FIELD_TYPE1' => FIELD_TYPE1,'FIELD_TYPE2' => FIELD_TYPE2,'FIELD_TYPE3' => FIELD_TYPE3,'FIELD_TYPE4' => FIELD_TYPE4,'FIELD_TYPE6' => FIELD_TYPE6,'FIELD_TYPE7' => FIELD_TYPE7,'FIELD_TYPE8' => FIELD_TYPE8,'FIELD_TYPE9' => FIELD_TYPE9,'FIELD_TYPE10' => FIELD_TYPE10));
      
          wp_localize_script( 'admin_apply_form', 'afTooltip', array( 'FIELD_TYPE_TOOLTIP' => FIELD_TYPE_TOOLTIP,'REQUIRED_TOOLTIP' => REQUIRED_TOOLTIP,'TITLE_OF_FIELD_TOOLTIP' => TITLE_OF_FIELD_TOOLTIP));  
             
        wp_enqueue_script('af-scrollbar');    
        wp_enqueue_script('af-functions');  
        wp_enqueue_script('admin_apply_form');  
-      
+
+       wp_enqueue_script('file-upload-js');
+       
+        
      }
    
     
@@ -379,10 +389,6 @@ class Candidate_Application_Form{
     /*End of Script Config code*/
     
     
-    /*echo '<pre>';
-    print_r($_POST);
-    echo '</pre>';
-    exit;  */
      
     if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'){
        include("$file_path");
@@ -561,20 +567,61 @@ class Candidate_Application_Form{
         if(!empty($wpaf_field_title)){
            $af_fields =  json_decode($wpaf_field_title);
         }
+        
         if(isset($af_fields)){
+//CRINCH
+$ASIF_FIELD_MARK=0;
         foreach($af_fields as $fld ){ 
             $compulsory = '';
             $parameter = $fld->field;
             $param = explode(':',$parameter);  
             $title = $fld->title;
+            //CRINCH - block with if condition
+            $final_string_new = '';
+            if (strpos($fld->title,'@@') !== false) {
+            	$param_custom_new = explode('@@',$fld->title);
+            	$fld->title = $param_custom_new[0];
+            	$title = $param_custom_new[0];
+            	$final_string_new = $param_custom_new[1];
+            	$final_string_new = str_replace('{','',$final_string_new);
+            	$final_string_new = str_replace('}','',$final_string_new);
+            }            
             if(isset($param[0])){     
                  if($param[1] == 1){
                        $compulsory = '<span style="color:red;">*</span>';
                   } 
                   
                    
-                  ?> 
-                      <div> <label class="wp_labeltxt "> <?php echo $title.$compulsory; ?>: </label> </div>
+                  ?>
+                      <div> <label class="wp_labeltxt "> <?php echo $title.$compulsory; ?>: </label> 
+                      <?php 
+                      if(strcasecmp($param[0], FIELD_TYPE10) == 0){    /*EditAble PDF */    
+						$custom_plugin_name = plugin_basename( __FILE__ );
+						$custom_plugin_name = str_replace("apply_form.php","",$custom_plugin_name);
+						$custom_plugin_dir_path = $custom_plugin_name;
+						$custom_plugin_name = str_replace("-","_",$custom_plugin_name);
+						//print $final_string_new;
+						$file_pdf_name = str_replace('uploadedpdffiles/','',$final_string_new);
+						$file_pdf_name = str_replace('.pdf','',$file_pdf_name);
+						//print $file_pdf_name;
+						$title_for_field_id = str_replace(" ","_",$title);
+						$title_for_PDF_Hidden_field_id = str_replace(" ","",$title);
+						?>
+
+                     <!--CRINCH 30March2015-->
+                     <div class="openDialogForPDFMain">
+                     <!--<input type="hidden" name="customPdfFilePath[]" id="<?php echo $title_for_field_id.'_customPdfFilePath'; ?>" value="<?php echo $upload_dir."wp-content/uploads/".$custom_plugin_name.$final_string_new;?>">-->
+                     <input type="hidden" name="customPdfFilePath" id="<?php echo $title_for_field_id.'_customPdfFilePath'; ?>" value="<?php //echo 'wp-content/plugins/candidate-application-form/downloadpdffile.php?fileUrl='.$upload_dir."wp-content/uploads/".$custom_plugin_name."&fileName=".$final_string_new;?><?php echo bloginfo('url').'/wp-content/plugins/'.$custom_plugin_dir_path.'downloadpdffile.php?fileUrl='.$upload_dir."wp-content/uploads/".$custom_plugin_name."&fileName=".$final_string_new;?>">
+                     <input type="hidden" name="customPdfFilePathh" id="<?php echo $title_for_field_id.'_customPdfFilePathh'; ?>" value="<?php echo $upload_dir."wp-content/uploads/".$custom_plugin_name.$final_string_new;?>">
+                     <input type="button" class="openDialogForPDF" id="<?php echo $title_for_field_id; ?>" value="Click here to open fillable PDF">
+                     <span style="font-size:12px;color:green;" id="<?php echo $title_for_field_id.'_mentiondfileuploaded'; ?>" class="remove_me"></span>
+                     </div>
+                     <input type="hidden" name="userPdfUploadFileNewName[]" id="<?php echo $title_for_field_id.'_userPdfUploadFileNewName'; ?>" value="<?php echo $custom_plugin_name.md5(time().$title_for_field_id.$ASIF_FIELD_MARK);?>">
+                     <div><input type="hidden" id="<?php echo $title_for_PDF_Hidden_field_id;?>_uploadornot" name="<?php //echo $title_for_PDF_Hidden_field_id;?><?php echo $title_for_field_id;?>" value="" class="inputclass makemeempty"></div>                     
+                     <!--END CRINCH 26March2015-->                     
+                     
+                 <?php } ?>
+                      </div>
                  <?php 
                  if(strcasecmp($param[0], FIELD_TYPE1) == 0){    /*text input */ ?>    
                     <div> <input type="text" name="<?php echo $title; ?>" class="inputclass" />
@@ -592,6 +639,47 @@ class Candidate_Application_Form{
                         <input type="hidden" class="filename_type" name="filename_type[<?php echo $title; ?>]" value="1" /> 
                      </div>  
                   </div>
+				<!-- START OF CRINCH CUSTOM BLOCK OF CODE -->                  
+                 <?php } if(strcasecmp($param[0], FIELD_TYPE8) == 0){    /*DropDOwn */    
+                 	$myCustomArray = explode(',', $final_string_new);
+                 	?>
+                      <div>
+                     <select id='<?php echo $fld->title; ?>' name='<?php echo $fld->title; ?>' class="inputclass">						  
+						  <?php
+						    for($io=0; $io<count($myCustomArray); $io++){
+								$selected = '';
+								$output = $myCustomArray[$io];
+								if (strpos($myCustomArray[$io],'[') !== false) {
+									$selected = "selected='selected'";		
+									$output = explode('[', $output);
+									$output = $output[0];
+								}
+							?>
+						      <option value="<?php echo $output; ?>" <?php echo $selected;?>><?php echo $output; ?></option>
+						  <?php						  
+						    } ?>                     
+                     </select>
+                     </div>
+                 <?php } if(strcasecmp($param[0], FIELD_TYPE9) == 0){    /*CheckBox */    
+                 	$myCustomArrayCheckBox = explode(',', $final_string_new);
+                 	?>                     
+						  <?php
+						    for($io=0; $io<count($myCustomArrayCheckBox); $io++){
+								$checked = '';
+								$outputCheckbox = $myCustomArrayCheckBox[$io];
+								if (strpos($myCustomArrayCheckBox[$io],'[') !== false) {
+									$checked = "checked='checked'";		
+									$outputCheckbox = explode('[', $outputCheckbox);
+									$outputCheckbox = $outputCheckbox[0];
+								}
+							?>
+						      <div style='font-size:12px;'>
+						      <!--<input type="checkbox" name="<?php echo $outputCheckbox; ?>" value="<?php echo $outputCheckbox; ?>" <?php echo $checked; ?>>&nbsp; <?php echo $outputCheckbox; ?></div>-->
+						      <input type="checkbox" name="inputtypecheckbox<?php echo $title; ?>[]" value="<?php echo $outputCheckbox; ?>" <?php echo $checked; ?>>&nbsp; <?php echo $outputCheckbox; ?></div>
+						      <!-- END OF CRINCH CUSTOM BLOCK OF CODE -->                  						      
+						  <?php						  
+						    } ?>                                          
+                     
                  <?php } if(strcasecmp($param[0], FIELD_TYPE3) == 0){    /*longtext */    ?>
                      <div> <textarea name="<?php echo $title; ?>" class="inputclass"></textarea> </div>
                  <?php } if(strcasecmp($param[0], FIELD_TYPE4) == 0){   /*numeric/integer */    ?>
@@ -631,6 +719,7 @@ class Candidate_Application_Form{
                   <div class="clear h20"></div>
                 <?php 
                        }
+                       $ASIF_FIELD_MARK = $ASIF_FIELD_MARK + 1;
                }
             } 
     ?>
@@ -682,11 +771,156 @@ class Candidate_Application_Form{
  
 </form>
 </div>
+<!--CRINCH 26March2015-->
+   <div id="dialogCrinch" title="Basic dialog Crinch">
+   </div>
+<!--END CRINCH 26March2015-->   
 </div>
 
 <!--End of responsive form design-->   
 <script type="text/javascript">
         jQuery(document).ready(function(){
+
+
+    		/*CRINCH 26March2015*/
+     	   jQuery(".openDialogForPDF").click( function() {
+         	   var use_id = this.id;
+         	   var mystring = use_id;
+         	   mystringg = mystring.split('_').join('');
+     		   showHideUploadPDFInputField = "style='display:none'";
+     		   var custom_pdf_file_path = jQuery('#'+use_id+'_customPdfFilePath').val();
+     		  var custom_pdf_file_path_new = jQuery('#'+use_id+'_customPdfFilePathh').val();
+     		   var custom_pdf_file_new_name = jQuery('#'+use_id+'_userPdfUploadFileNewName').val();
+     		   var current_file_path_change_to_new_id = use_id+'_userPdfUploadFileNewName';
+     		   custom_pdf_file_path = custom_pdf_file_path.split('|');
+     		   custom_pdf_file_path = custom_pdf_file_path[0];
+     		   var custom_pdf_file_name = jQuery('#'+use_id+'_customPdfFilePath').val();
+     		   var pdf_text_message = "Please download the PDF by clicking the 'Download' link below. Once downloaded, open the file and fill in the appropriate details. Now all the details have been filled in, save your file with a new name then click 'Upload' to re-upload the PDF document.";
+     	      jQuery("#dialogCrinch" ).dialog( "open"  ); 
+     	      jQuery("#dialogCrinch").append("<form id='form_dialog_pdf' method='post' enctype='multipart/form-data'><table class='wpaf_dialog_table'><tr><td><p style='font-size:12px;color:green;'>"+pdf_text_message+"<br /><a id='download_pdf_link' style='font-size:12px;color:red;' onclick = 'show_dialog_pdf_input_field();' href='"+custom_pdf_file_path+"' download='"+custom_pdf_file_name+"'><input type='button' value='Download PDF'></a></p></td></tr><tr id='pdf_upload_dialog_row'><td align='center'><input name='file' id='dialog_fileupload' type='file' size='15' multiple/><div class='spinner' style='float:left;font-size:14px;color:green;display:none;'>Uploading....</div><div id='showPDFfileOnly'style='color:red;font-size:10px;'>Only PDF files!</div><input type='hidden' name='new_pdf_file_name' id='new_pdf_file_name' value='"+custom_pdf_file_new_name+"'></td></tr></table><input type='hidden' id='PDFUPLOADEDORNOT' value='"+mystringg+"_uploadornot'><input type='hidden' id='PDFUPLOADEDORNOT_NEW' value='"+custom_pdf_file_path_new+"'><input type='hidden' id='PDFUPLOADEDORNOT_PROGRESS' value='"+mystring+"'><input type='hidden' id='Chambeli' value='"+current_file_path_change_to_new_id+"'></form>");
+     	   });
+  
+     	   /*END CRINCH 26March2015*/
+        
+			<!--CRINCH 26March2015-->
+          jQuery("#dialogCrinch").dialog({
+            autoOpen: false,
+            title: "Download and Upload PDF",
+            modal: true,
+            minHeight: 300,
+            minWidth: 500, 
+            buttons: {
+              Ok: function() {
+            	  jQuery("div.spinner").show('fast'); 
+                 //var dialog_pdf_upload_file_name = jQuery('#userPdfUploadFileNewName').val();
+                 var chambeli_val = jQuery('#Chambeli').val();
+                 var dialog_pdf_upload_file_name = jQuery('#new_pdf_file_name').val();
+                 if(dialog_pdf_upload_file_name==''){
+	    			 alert('Please refresh your page and Try Again!');
+	    			 return false;
+                 }
+	      		 var fd_dialog_pdf_upload = new FormData();
+	      		var final_string_dialogPDF = '';
+	    		 var file_dialog_pdf_upload = jQuery('#dialog_fileupload').prop('files')[0];
+	    		 if(!file_dialog_pdf_upload){
+	    			 alert('Please try again and select PDF file!');
+	    			 return false;
+	    		 }
+	    		 if(file_dialog_pdf_upload.name==''){
+	    			 alert('Please try again and select PDF file!');
+	    			 return false;
+	    		 }
+	    		 var ext = jQuery('#dialog_fileupload').val().split('.').pop().toLowerCase();
+	    		 if(ext!='pdf'){
+	    			 alert('Please try again and select PDF file only!');
+	    			 return false;
+	    		 }
+	    		 fd_dialog_pdf_upload.append("file", file_dialog_pdf_upload);
+	    		 fd_dialog_pdf_upload.append("name", file_dialog_pdf_upload.name);
+	    		 fd_dialog_pdf_upload.append("newname", dialog_pdf_upload_file_name);    		 
+	    		 fd_dialog_pdf_upload.append("caption", 'asifarif');  
+	    		 fd_dialog_pdf_upload.append('action', 'crinch_custom_file_upload_dialog');
+	    		 var break_whole_loop_dialogPDF = false;
+	 		    jQuery.ajax({
+			        type: 'POST',
+			        url: myAjax.ajaxurl,
+			        data: fd_dialog_pdf_upload,
+			        contentType: false,
+			        processData: false,
+			        async: false,
+			        beforeSend: function() {
+			        	jQuery('div.spinner').show('fast');
+			        },
+			        complete: function(){
+			        	var delay1 = 2000;
+						setTimeout(function() {
+							jQuery('div.spinner').html('Uploaded!');
+						}, delay1);
+			        },
+			        success: function(dialogPDFUploadResponse){
+						//CRINCH -
+						var pdf_text_field_upload_or_not_id =  jQuery('#PDFUPLOADEDORNOT').val();
+						putPathOfPDFFile = jQuery('#PDFUPLOADEDORNOT_NEW').val();
+						fileUploadProgress = jQuery('#PDFUPLOADEDORNOT_PROGRESS').val();
+						
+						//new block
+						var delay = 3000;
+						setTimeout(function() {
+							jQuery('div.spinner').hide('slow');
+							jQuery("#dialogCrinch").dialog('close');
+							jQuery('#form_dialog_pdf').remove();
+							jQuery("#dialogCrinch").html('');
+						}, delay);
+						jQuery('div.spinner').html('Uploading...');
+						setTimeout(function() {	
+						jQuery('#'+fileUploadProgress+'_mentiondfileuploaded').html("Thanks, File Uploaded!");
+						}, delay);					
+						//new block
+						
+			        	var json = jQuery.parseJSON(dialogPDFUploadResponse);
+			        	jQuery(json).each(function(i,val){
+			        		if(break_whole_loop_dialogPDF){
+			        			return false;
+			        		}
+			        		jQuery.each(val,function(k,v){
+			        	          if(k=='error'){
+			        	        	  break_whole_loop_dialogPDF = true;
+			        	        	  return false;
+			        	          }
+			        	          if(k=='filePath' && v!=''){
+			        	        	  stringToRemove = putPathOfPDFFile.split('/').pop();
+			        	        	  putPathOfPDFFile2 = putPathOfPDFFile.replace(stringToRemove,v);
+			        	        	  jQuery('#'+pdf_text_field_upload_or_not_id).val("FILEUPLOADED|"+putPathOfPDFFile2);			        	        	  
+			        	        	  jQuery('#'+chambeli_val).val(v);
+			        	        	  final_string_dialogPDF = val[k];
+			        	        	  break_whole_loop_dialogPDF = true;
+			        	        	  return false;
+			        	          }		        	          
+			        	});
+			        	});
+			        },
+			    	error: function (returnval) {
+			        alert('Sorry, there is REQUEST problem: '+returnval);
+			        return false;
+			    	}
+			    });	//end of ajax request
+			    if(final_string_dialogPDF==''){
+			    	alert('PDF file uploading problem!');
+			    	return false;
+			    }			    	    		 	    		                
+               //jQuery(this).dialog("close");
+               //jQuery('#form_dialog_pdf').remove();
+              }
+            },
+           close: function( event, ui ) {
+  		         jQuery("#dialogCrinch").html(''); 
+           }       
+        
+        });
+
+          <!--END CRINCH 26March2015-->
+
+            
            jQuery(".dialog").dialog({ autoOpen: false,
               title: "Application Status",
               modal: true,
@@ -703,14 +937,15 @@ class Candidate_Application_Form{
                   jQuery( this ).dialog( "close" );
                   jQuery('.dialog p').remove();   
                   jQuery(".af_clss")[0].reset();
-                
+		  jQuery(".makemeempty").val("");  //CRINCH - april 30
+		  jQuery("span.remove_me").html("");  //CRINCH - april 30                
                   jQuery(".span_error_class").each(function() {  
                      var elm_id = jQuery(this).attr("id"); 
                      jQuery("#"+elm_id).empty();  
                   });
                   jQuery(".wp_af_validation_error").empty();  
                 }
-            } });
+            } });       
            });      
     </script>
   <?php 
@@ -764,8 +999,6 @@ class Candidate_Application_Form{
      $matchODLE = 0;
      $disabled = "disabled = 'disabled'";
    }  
-
-
 ?>
 
 <div id= "wp_fieldcontainer">
@@ -839,12 +1072,24 @@ foreach($decoded_new_fields as $new_field ){
     $compulsory = '';
     $parameter = $new_field->field;
     $param = explode(':',$parameter);
+    //CRINCH
+    $final_string_new = '';
+    if (strpos($new_field->title,'@@') !== false) {
+		$param_custom_new = explode('@@',$new_field->title);
+		$new_field->title = $param_custom_new[0];
+		$final_string_new = $param_custom_new[1];
+		$final_string_new = str_replace('{','',$final_string_new);
+		$final_string_new = str_replace('}','',$final_string_new);
+    }
+    //END CRICNH
+    
     if($param[1] == 1){
          $compulsory = '<span style="color:red;">*</span>';
         }
 ?>
-
-    <li class='available_fields'><label><?php echo $compulsory." ".$param[0].":".$new_field->title; ?></label><input name='av_field[]' class='temp_cls1' type='hidden'  value='<?php echo $param[0].":".$param[1]; ?>' /><input name='av_title[]' class='temp_cls2' type='hidden' value='<?php echo $new_field->title; ?>'></li>
+	<!-- edit this below line - crinch -->
+    <!--<li class='available_fields'><label><?php echo $compulsory." ".$param[0].":".$new_field->title; ?></label><input name='av_field[]' class='temp_cls1' type='hidden'  value='<?php echo $param[0].":".$param[1]; ?>' /><input name='av_title[]' class='temp_cls2' type='hidden' value='<?php echo $new_field->title; ?>'></li>  -->
+    <li class='available_fields'><label><?php echo $compulsory." ".$param[0].":".$new_field->title; ?></label><input name='av_field[]' class='temp_cls1' type='hidden'  value='<?php echo $param[0].":".$param[1]; ?>' /><input name='av_title[]' class='temp_cls2' type='hidden' value='<?php echo $new_field->title; ?>'><input name='av_options[]' class='temp_cls3' type='hidden' value='<?php echo $final_string_new; ?>'></li>
  <?php
    }
  }  
@@ -853,7 +1098,8 @@ foreach($decoded_new_fields as $new_field ){
 </ul> 
 
 
-<input  id="add_new_button" type="button"  class="ui-button wp_apply_button" value="Add New Field" name="submit_field" <?php if(APPLY_FORM_EDITION == 'free'){ echo "disabled = 'disabled'"; } ?> /> 
+<input  id="add_new_button" type="button"  class="ui-button wp_apply_button" value="Add New Field" name="submit_field" <?php if(APPLY_FORM_EDITION == 'free'){ echo "disabled = 'disabled'"; } ?> />
+ 
 <?php
     if(APPLY_FORM_EDITION == 'free'){    
        echo "<br /><br />Upgrade to the professional edition of Apply Form to use this feature.";
@@ -878,11 +1124,23 @@ foreach($decoded_form_fields as $af_field ){
     $compulsory = '';
     $parameter = $af_field->field;
     $param = explode(':',$parameter);
+    //CRINCH
+    $final_string = '';
+    if (strpos($af_field->title,'@@') !== false) {
+		$param_custom = explode('@@',$af_field->title);
+		$af_field->title = $param_custom[0];
+		$final_string = $param_custom[1];
+		$final_string = str_replace('{','',$final_string);
+		$final_string = str_replace('}','',$final_string);
+    }
+    //END CRICNH
     if($param[1] == 1){
          $compulsory = '<span style="color:red;">*</span>';
      }
 ?>
-   <li class='available_fields ui-draggable'><label><?php echo $compulsory." ".$param[0].":".$af_field->title; ?></label><input name='af_field[]' class='temp_cls1' type='hidden'  value='<?php echo $param[0].":".$param[1]; ?>' /><input name='af_title[]' class='temp_cls2' type='hidden' value='<?php echo $af_field->title; ?>'></li>
+	<!-- edit this below line - crinch -->
+   <!--<li class='available_fields ui-draggable'><label><?php echo $compulsory." ".$param[0].":".$af_field->title; ?></label><input name='af_field[]' class='temp_cls1' type='hidden'  value='<?php echo $param[0].":".$param[1]; ?>' /><input name='af_title[]' class='temp_cls2' type='hidden' value='<?php echo $af_field->title; ?>'></li>  -->
+   <li class='available_fields ui-draggable'><label><?php echo $compulsory." ".$param[0].":".$af_field->title; ?></label><input name='af_field[]' class='temp_cls1' type='hidden'  value='<?php echo $param[0].":".$param[1]; ?>' /><input name='af_title[]' class='temp_cls2' type='hidden' value='<?php echo $af_field->title; ?>'><input name='af_options[]' class='temp_cls3' type='hidden' value='<?php echo $final_string; ?>'></li>
 <?php }
   }
 ?>   
@@ -1659,35 +1917,94 @@ jQuery(document).ready(function(){
                 
                  jQuery("#wp_ai_flds").find('li').each(function(){   
                           jQuery(this).click( function() {
+							//CRINCH
+							var showHideUploadPDFField_runtime = "style='display:none'";
+						   var showHideAddOptionLink_runtime = "style='display:none'";
+						   var dynamicOptionsTrs_runtime = '';
+						   //end CRINCH
+						  
                                 jQuery("#edit_dialog" ).dialog( "open" ); 
                                  
                                  var av_field = jQuery(this).find('.temp_cls1').val();
                                  var av_title = jQuery(this).find('.temp_cls2').val();
+								 //CRINCH
+								 var av_options = jQuery(this).find('.temp_cls3').val();
+								 
+								 
+								 
+								 var av_title = jQuery(this).find('.temp_cls2').val();  
                                  var exploded_field = av_field.split(":");
                                   
-                                 var text_selected = longtext_selected = upload_selected = numeric_selected = '';  
+								  //CRINCH - BELOW LINE UPDATE
+                                 //var text_selected = longtext_selected = upload_selected = numeric_selected = '';  
+								 var text_selected = longtext_selected = upload_selected = numeric_selected = dropdown_selected = checkbox_selected = editablePDF_selected = '';  
+								 
                                  var required = ''; 
-                                
                                  if(exploded_field[0] == "Text"){
                                    text_selected = "selected='selected'";
+                                   showHideAddOptionLink_runtime = "style='display:none'";
+       							   showHideUploadPDFField_runtime = "style='display:none'";                                   
                                  }
                                  else if(exploded_field[0] == "Upload"){
-                                   upload_selected = "selected='selected'"; 
+                                   upload_selected = "selected='selected'";
+                                   showHideAddOptionLink_runtime = "style='display:none'";
+                                   showHideUploadPDFField_runtime = "style='display:none'"; 
                                  }
                                  else if(exploded_field[0] == "Long Text"){
                                   longtext_selected = "selected='selected'";
+                                  showHideAddOptionLink_runtime = "style='display:none'";
+                                  showHideUploadPDFField_runtime = "style='display:none'";
                                  }
                                  else if(exploded_field[0] == "Numeric"){
                                   numeric_selected = "selected='selected'";
+                                  showHideAddOptionLink_runtime = "style='display:none'";
+                                  showHideUploadPDFField_runtime = "style='display:none'";
+                                 }
+                                 else if(exploded_field[0] == "Dropdown"){  //CRINCH
+									dropdown_selected = "selected='selected'";
+									//showHideAddOptionLink_runtime = "style='display:none'";
+									showHideUploadPDFField_runtime = "style='display:none'";
+										showHideAddOptionLink_runtime = '';
+										if(av_options!=''){
+										dynamicOptionsTrs_runtime = makeDynamicOptions_runtime(exploded_field[0], av_options);
+									}
+								  
+                                 }
+                                 else if(exploded_field[0] == "Checkbox"){  //CRINCH
+								 //showHideAddOptionLink_runtime = "style='display:none'";
+								 showHideUploadPDFField_runtime = "style='display:none'";
+                                  checkbox_selected = "selected='selected'";
+										showHideAddOptionLink_runtime = '';
+										dynamicOptionsTrs_runtime = makeDynamicOptions_runtime(exploded_field[0], av_options);
+								  
+                                 }
+                                 else if(exploded_field[0] == "EditablePDF"){  //CRINCH
+                                  	editablePDF_selected = "selected='selected'";
+									showHideAddOptionLink_runtime = "style='display:none'";
+									showHideUploadPDFField_runtime = "";
+									dynamicOptionsTrs_runtime = makeDynamicOptions_runtime_editable(exploded_field[0], av_options);                                  
                                  }
                                  
                                  if(exploded_field[1] == "1"){
                                   required = "checked='checked'";
                                  }
-                                
-                                var option_str = "<option value='Text' "+text_selected+">Text</option><option value='Upload' "+upload_selected+">Upload</option><option value='LongText' "+longtext_selected+">Long Text</option><option value='Numeric' "+numeric_selected+">Numeric</option>";
+								
+								//CRINCH - BELOW LINE UDPATED	                                
+                                /*var option_str = "<option value='Text' "+text_selected+">Text</option><option value='Upload' "+upload_selected+">Upload</option><option value='LongText' "+longtext_selected+">Long Text</option><option value='Numeric' "+numeric_selected+">Numeric</option>";*/
+								
+								//01april - CRINCH -done
+                                var option_str = "<option value='Text' "+text_selected+">Text</option><option value='Upload' "+upload_selected+">Upload</option><option value='LongText' "+longtext_selected+">Long Text</option><option value='Numeric' "+numeric_selected+">Numeric</option><option value='Dropdown' "+dropdown_selected+">Dropdown</option><option value='Checkbox' "+checkbox_selected+">Checkbox</option><option value='EditablePDF' "+editablePDF_selected+">Editable PDF</option>";
+								
+								
+								
+								
                                  jQuery(this).attr('id','pointer');      //set a id called pointer
-                                 jQuery("#edit_dialog").append("<form id='form_dialog'><table class='wpaf_dialog_table'><tr><td width='22px'><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.FIELD_TYPE_TOOLTIP+"\");'>?</span></td><td width='110px'><span class='dialog_flds'>Field Type:</span></td><td><select id='new_field' name='new_field' style='width:180px;'>"+option_str+"</select></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.REQUIRED_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Required:</span></td><td><input id='required_field' type='checkbox' name='required_field' value='1' "+required+"></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.TITLE_OF_FIELD_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Title of field:</span></td><td><input type='text' name='field_title' id='field_title' value='"+av_title+"' /></td></tr></table></form>"); 
+								 
+								 //CRINCH - BELOW LINE UPDATED
+                                 /*jQuery("#edit_dialog").append("<form id='form_dialog'><table class='wpaf_dialog_table'><tr><td width='22px'><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.FIELD_TYPE_TOOLTIP+"\");'>?</span></td><td width='110px'><span class='dialog_flds'>Field Type:</span></td><td><select id='new_field' name='new_field' style='width:180px;'>"+option_str+"</select></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.REQUIRED_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Required:</span></td><td><input id='required_field' type='checkbox' name='required_field' value='1' "+required+"></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.TITLE_OF_FIELD_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Title of field:</span></td><td><input type='text' name='field_title' id='field_title' value='"+av_title+"' /></td></tr></table></form>"); */
+                                 //jQuery("#edit_dialog").append("<form id='form_dialog'><table class='wpaf_dialog_table'><tr><td width='22px'><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.FIELD_TYPE_TOOLTIP+"\");'>?</span></td><td width='110px'><span class='dialog_flds'>Field Type:</span></td><td><select onchange='DeleteItemOnDropDownSelection(); return false;' name='new_field' id='new_field' style='width:180px;'>"+option_str+"</select></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.REQUIRED_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Required:</span></td><td><input id='required_field' type='checkbox' name='required_field' value='1' "+required+"></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.TITLE_OF_FIELD_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Title of field:</span></td><td><input type='text' name='field_title' id='field_title' value='"+av_title+"' /></td></tr><tr id='asifarif-0' class='checkme'><td colspan='3'></td></tr>"+dynamicOptionsTrs_runtime+"<tr "+showHideAddOptionLink_runtime+" id='linkToCreateDynamicOption'><td align='center' colspan='3'><button type='button' id='asif_arif' class='asif_arif' onclick = 'event_add_audience_custom(); return false;'><span class='ui-button-text trigger'>Add OPtion</span></button></td></tr><tr "+showHideUploadPDFField_runtime+" id='showHideUploadPDFFieldID'><td align='center' colspan='3'><input name='file' id='fileupload' type='file' size='15' multiple/><div id='showPDFfileOnly'style='color:red;font-size:10px;'>Only PDF files!</div><div ='response'></div></td></tr></table></form>"); 
+                                 jQuery("#edit_dialog").append("<form id='form_dialog'><table class='wpaf_dialog_table'><tr><td width='22px'><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.FIELD_TYPE_TOOLTIP+"\");'>?</span></td><td width='110px'><span class='dialog_flds'>Field Type:</span></td><td><select onchange='DeleteItemOnDropDownSelection(); return false;' name='new_field' id='new_field' style='width:180px;'>"+option_str+"</select></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.REQUIRED_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Required:</span></td><td><input id='required_field' type='checkbox' name='required_field' value='1' "+required+"></td></tr><tr><td><span class='wpaf_tooltip trigger'  onmouseover = 'OpenDiv(\""+afTooltip.TITLE_OF_FIELD_TOOLTIP+"\");'>?</span></td><td><span class='dialog_flds'>Title of field:</span></td><td><input type='text' name='field_title' id='field_title' value='"+av_title+"' /></td></tr><tr id='asifarif-0' class='checkme'><td colspan='3'></td></tr>"+dynamicOptionsTrs_runtime+"<tr "+showHideAddOptionLink_runtime+" id='linkToCreateDynamicOption'><td align='center' colspan='3'><button type='button' id='asif_arif' class='asif_arif' onclick = 'event_add_audience_custom(); return false;'><span class='ui-button-text trigger'>Add OPtion</span></button></td></tr></table></form>");
+								 
                                
                                  });
            }); 
@@ -1752,7 +2069,89 @@ jQuery(document).ready(function(){
     }
                  
     
-   /* tooltip functions -- end */  
+   /* tooltip functions -- end */ 
+   
+   
+//CRINCH
+
+
+
+function DeleteCustom(id){ //crinch
+	var par = jQuery('.wpaf_dialog_table tbody tr#'+id);
+	par.remove();
+};
+
+function DeleteItemOnDropDownSelection(){ //crinch
+	var getClass = 'checkme';
+	var field_type_custom_value = jQuery('#new_field').val();
+	if(field_type_custom_value=='Checkbox' || field_type_custom_value=='Dropdown'){
+		jQuery('.wpaf_dialog_table tbody tr#linkToCreateDynamicOption').show();
+		jQuery('.wpaf_dialog_table tbody tr#showHideUploadPDFFieldID').hide();
+	}else if(field_type_custom_value=='EditablePDF'){
+		jQuery('.wpaf_dialog_table tbody tr#linkToCreateDynamicOption').hide();
+		jQuery('.wpaf_dialog_table tbody tr#showHideUploadPDFFieldID').show();			
+	}else{
+		jQuery('.wpaf_dialog_table tbody tr#linkToCreateDynamicOption').hide();
+		jQuery('.wpaf_dialog_table tbody tr#asifarif-1').hide();
+		jQuery('.wpaf_dialog_table tbody tr#showHideUploadPDFFieldID').hide();
+	}
+
+	jQuery("."+getClass).each(function() {
+		if(this.id=='asifarif-0'){
+			return;
+		}
+		DeleteCustom(this.id);
+		/*if(field_type_custom_value=='Checkbox' || field_type_custom_value=='Dropdown'){
+			jQuery('.wpaf_dialog_table tbody tr#'+this.id).show();
+		}else{
+			jQuery('.wpaf_dialog_table tbody tr#'+this.id).hide();
+			
+		}*/
+	});
+}
+function makeDynamicOptions_runtime_editable(field_type, field_option_str){
+	var plugin_dir_link = field_option_str;
+	plugin_dir_link = plugin_dir_link.replace("uploadedpdffiles/", ""); 
+	var href_file_link = "<span style='color:red;font-size:11px;'>"+plugin_dir_link+"</span>";
+	var return_str_runtime = "<tr id='showHideUploadPDFFieldID'><td>"+href_file_link+"</td><td align='center' colspan='2'><input name='file' id='fileupload' type='file' size='15' multiple/><input type='hidden' name='alreadySelectedPdf' id='alreadySelectedPdf' value='"+field_option_str+"'><div id='showPDFfileOnly'style='color:red;font-size:10px;'>Only PDF files!</div></td></tr>";
+	return return_str_runtime;
+}
+function makeDynamicOptions_runtime(field_type, field_option_str){
+	var return_str_runtime = '';
+	var input_old_field_option_str_runtime = field_option_str;
+	var old_field_option_arr_runtime = input_old_field_option_str_runtime.split(",");
+	for(var i_runtime = 1; i_runtime <= old_field_option_arr_runtime.length; i_runtime++){
+		var maxId_runtime = i_runtime;
+		var field_title_str_runtime = old_field_option_arr_runtime[i_runtime-1];
+		var select_radio_button_runtime = '';
+		if (field_title_str_runtime.match( /(^.*\[|\].*$)/g, '' )){ 
+			var select_radio_button_runtime = 'checked';	
+			var field_title_control_selection_runtime = field_title_str_runtime.split("[");
+			field_title_str_runtime = field_title_control_selection_runtime[0];
+		}	
+		if(field_type=='Checkbox'){
+			var dynamic_checkbox_radio_control_runtime = "<input class='inputclass' type='checkbox' name='fieldOPtionDefaultCheckBox[]' id='fieldOPtionDefaultCheckBox-"+maxId_runtime+"' "+select_radio_button_runtime+" value='"+maxId_runtime+"'><span style='font-size:11px;'>Default Selected</span>";
+		}else if(field_type=='Dropdown'){
+				var dynamic_checkbox_radio_control_runtime = "<input class='inputclass' type='radio' name='fieldOPtionDefaultRadioButton[]' id='fieldOPtionDefaultRadioButton-"+maxId_runtime+"' "+select_radio_button_runtime+"  value='"+maxId_runtime+"'><span style='font-size:11px;'>Default Selection</span>";			
+		}else{
+			var dynamic_checkbox_radio_control_runtime = "&nbsp";
+		}
+		var return_str_runtime = return_str_runtime + "<tr class='checkme' id='asifarif-"+maxId_runtime+"'>"+
+		"<td><span style='color:red;font-size:11px;cursor:pointer;' class='btnDelete' onclick='customDeleteRowFromAvailableFieldsOnUpdate_runtime("+maxId_runtime+"); return false;'>Delete</span></td>"+
+		"<td colspan='2'>&nbsp; <span style='font-size:15px;'>Options "+maxId_runtime+"</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name='fieldOptions[]' id='"+maxId_runtime+"' type='text' value='"+field_title_str_runtime+"'/>&nbsp;&nbsp;"+dynamic_checkbox_radio_control_runtime+"</td>"+
+		"</tr>";
+	}
+	return return_str_runtime;
+}
+    
+function customDeleteRowFromAvailableFieldsOnUpdate_runtime(id){
+	DeleteCustom_runtime(id);
+}
+function DeleteCustom_runtime(id){ //crinch
+	var par = jQuery('.wpaf_dialog_table tbody tr#asifarif-'+id);
+	par.remove();
+};
+
     
     </script>
     
@@ -1847,20 +2246,32 @@ jQuery(document).ready(function(){
                   }
                   
                    if(isset($_POST['af_field'])){
+//crinch, important break ponit
                        $af_fields = $_POST['af_field'];
-                       $af_titles = $_POST['af_title']; 
+                       $af_titles = $_POST['af_title'];
+                       //CRINCH,Added this new below line
+                       $af_options = $_POST['af_options'];
+                       // 
                        $form_fields = array();
                        $j = 0;
                        foreach($af_fields as $key => $value){
                          $form_fields[$j]['field'] = $value;
-                         $form_fields[$j]['title'] = $af_titles[$key];
+                         //CRINCH
+                         //$form_fields[$j]['title'] = $af_titles[$key];
+                         if($af_options[$key]!=''){
+	                         $form_fields[$j]['title'] = $af_titles[$key].'@@{'.$af_options[$key].'}';
+                         }else{
+                         	$form_fields[$j]['title'] = $af_titles[$key];
+                         }
                          $j++;
                        }
-                       
+                                   
                    
                        $jsonFormField = json_encode($form_fields);    
                        unset($_POST['af_field']);
                        unset($_POST['af_title']);
+                       //CRINCH
+                       unset($_POST['af_options']);
                   }
         
                   
@@ -1868,17 +2279,29 @@ jQuery(document).ready(function(){
                   if(isset($_POST['av_field'])){
                        $av_fields = $_POST['av_field'];
                        $av_titles = $_POST['av_title']; 
+                       //CRINCH,Added this new below line
+                       $av_options = $_POST['av_options'];
+                       //
+                                   
                        $available_fields = array();
                        $j = 0;
                        foreach($av_fields as $key => $value){
                          $available_fields[$j]['field'] = $value;
-                         $available_fields[$j]['title'] = $av_titles[$key];
+                         //CRINCH
+                         //$available_fields[$j]['title'] = $av_titles[$key];
+                         if($av_options[$key]!=''){
+                         	$available_fields[$j]['title'] = $av_titles[$key].'@@{'.$av_options[$key].'}';
+                         }else{
+                         	$available_fields[$j]['title'] = $av_titles[$key];
+                         }                          
                          $j++;
                        }
                    
                        $jsonAvailableField = json_encode($available_fields);    
                        unset($_POST['av_field']);
                        unset($_POST['av_title']);
+                       //CRINCH
+                       unset($_POST['av_options']);
                   
                   }
                   
@@ -1970,6 +2393,9 @@ jQuery(document).ready(function(){
       
       /*Error messages */
       define("REQUIRED_ERROR_MSG","Please fill the required field.");
+      //CRINCH
+      define("REQUIRED_ERROR_MSG_PDF","Please Download and Upload required PDF Document.");
+      
       define("INVALID_EMAIL_MSG","Invalid Email address.");
       define("EMAIL_DO_NOT_MATCH_MSG","Email ids do not match");   
       define("INVALID_NUMERIC_MSG","Invalid number.");   
@@ -2033,12 +2459,24 @@ jQuery(document).ready(function(){
      define('FIELD_TYPE4',"NUMERIC");
      define('FIELD_TYPE6',"UPLOAD_OTHER");      
      define('FIELD_TYPE7',"EMAIL");
+     define('FIELD_TYPE8',"DROPDOWN");
+     define('FIELD_TYPE9',"CHECKBOX");
+     define('FIELD_TYPE10',"EDITABLEPDF");
+     
      add_filter('plugin_row_meta', array(&$this,'set_plugin_meta'),10,2);
    
      
      add_action("wp_ajax_submit_ic-application",array(&$this,'on_ic_apply'));
      add_action("wp_ajax_nopriv_submit_ic-application", array(&$this,'on_ic_apply'));
      
+     //CRINCH - for ajax file upload
+     add_action("wp_ajax_crinch_custom_file_upload",array(&$this,'on_crinch_file_upload'));
+     add_action("wp_ajax_nopriv_crinch_custom_file_upload",array(&$this,'on_crinch_file_upload'));
+
+     //CRINCH - for ajax DIALOG PDF file upload - FRONT END
+     add_action("wp_ajax_crinch_custom_file_upload_dialog",array(&$this,'on_crinch_file_upload_dialog'));
+     add_action("wp_ajax_nopriv_crinch_custom_file_upload_dialog",array(&$this,'on_crinch_file_upload_dialog'));
+      
      /*file upload*/
      add_action("wp_ajax_candidate_file_upload",array(&$this,'on_file_upload'));
      add_action("wp_ajax_nopriv_candidate_file_upload", array(&$this,'on_file_upload'));
@@ -2131,6 +2569,7 @@ jQuery(document).ready(function(){
       if(!empty($wpaf_field_title)){
            $af_fields =  json_decode($wpaf_field_title);
       }
+                  
       if(isset($af_fields)){ 
         foreach($af_fields as $fld ){ 
             $compulsory = '';
@@ -2139,9 +2578,26 @@ jQuery(document).ready(function(){
             $param = explode(':',$parameter);  
             $title = $fld->title;
             /*replace space with underscore*/
-            if(isset($param[0])){     
+            if(isset($param[0])){
+
+				//CRINCH
+				if (strpos($fld->title,'@@') !== false) {
+					$param_custom_new = explode('@@',$fld->title);
+					$fld->title = $param_custom_new[0];
+					$title = $param_custom_new[0];
+					//$title = str_replace(" ","",$title);
+					$title = str_replace(" ","_",$title);
+				}  
+				   
                     if(($param[1] == 1) && isset($form_vars[$title]) && empty($form_vars[$title]) ){
-                       $message['invalid'][$title] = REQUIRED_ERROR_MSG;
+                       //$message['invalid'][$title] = REQUIRED_ERROR_MSG;   // CRINCH - COMMENTED
+                       
+						//CRINCH
+						if($param[0]=='EditablePDF'){
+							$message['invalid'][$title] = REQUIRED_ERROR_MSG_PDF;
+						}else{
+							$message['invalid'][$title] = REQUIRED_ERROR_MSG;
+						}
                       
                        /*Check validation for confirm email if type is email */   
                         if(($param[0] == 'Email') && isset($form_vars['Confirm'])){ 
@@ -2356,6 +2812,30 @@ jQuery(document).ready(function(){
       die();
 
    } 
+   
+   //CRINCH
+   function on_crinch_file_upload(){
+	$file_path = IC_ROOT_DIR."/uploadfile.php";
+	$upload_dir = wp_upload_dir();
+	$base_dir = $upload_dir['basedir'];
+	define( 'CRINCH_PDF_UPLOAD_DIR', plugin_dir_path(__FILE__) );
+	define('UPLOAD_BASE_DIR',$base_dir);
+	include("$file_path");
+	die();   	
+   }
+   
+   //CRINCH
+   function on_crinch_file_upload_dialog(){
+   	//$file_path = IC_ROOT_DIR."/uploaddialogPDFfile.php";
+   	$file_path = IC_ROOT_DIR."/uploadfile.php";
+   	$upload_dir = wp_upload_dir();
+   	$base_dir = $upload_dir['basedir'];
+   	define( 'CRINCH_PDF_UPLOAD_DIR', plugin_dir_path(__FILE__) );
+   	define('UPLOAD_BASE_DIR',$base_dir);
+   	include("$file_path");
+   	die();
+   }
+    
   
 }
 ?>
